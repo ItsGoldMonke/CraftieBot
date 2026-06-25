@@ -3,13 +3,15 @@ require("dotenv").config();
 const { App } = require("@slack/bolt");
 const mcstatus = require('node-mcstatus');
 const axios = require('axios');
+const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
+const fs = require("fs");
+
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true
 });
-
 app.command("/craftie-help", async ({ command, ack, respond }) => {
     await ack();
     await respond ({
@@ -32,8 +34,31 @@ app.command("/craftie-ping", async ({ command, ack, respond }) => {
 app.command("/craftie-player", async ({ command, ack, respond }) => {
   await ack();
   try {
+    const args = command.text.trim().split(/\s+/);
+    const option = args[0]; // Argument 'uuid' or 'username' for which MC edition the server is.
+    const uuidOrUsername = args[1]; // The UUID or username of the player.
+    if (!option || !uuidOrUsername) {
+      return respond({text: "Usage: /craftie-player (uuid|name) <UUID/Username>"})
+    }
+    GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
+    const canvas = createCanvas(400, 200);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#3e3e3e';
+    ctx.fillRect(0, 0, 400, 200);
+    ctx.strokeStyle = '#00000065';
+    ctx.strokeRect(0, 0, 400, 200);
+    ctx.drawImage(await loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/100`), 280, 50, 100, 100);
+    ctx.font = '24px Minecraft';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`Player Info for ${uuidOrUsername}`, 20, 40);
 
-
+    const png = await canvas.encode('png');
+    fs.writeFileSync('output.png', png);
+    await respond(
+{
+  text: `Player info for ${uuidOrUsername}`,
+}
+    );
   } catch(err) {
     console.log(err)
     await respond({ text: "Failed to fetch. Please ensure the server is online and the host/port are correct. Otherwise, the server may be experiencing issues." });
@@ -79,7 +104,6 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
   }
   const imageUrl = (edition == 'java') ? `https://sr-api.sfirew.com/server/${response.host}:${(srvPort) ? srvPort : response.port}/icon.png` : "https://minecraft.wiki/images/Unknown_server.png";
   await respond(
-content =
         {
 	blocks: [
 		{
