@@ -60,8 +60,9 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.drawImage(await loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/200`), 560, 100, 200, 200);
     ctx.font = '32px Minecraft';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(`Player Info for ${uuidOrUsername}:`, 20, 40);
+    ctx.fillText(`Player Info for ${username}:`, 20, 40);
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
+    ctx.drawImage(await loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`), 20, 100, 150, 300);
 
 
 
