@@ -10,6 +10,7 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true
 });
+
 app.command("/craftie-help", async ({ command, ack, respond }) => {
     await ack();
     await respond ({
@@ -45,11 +46,14 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
     const args = command.text.trim().split(/\s+/);
     const uuidOrUsername = args[0]; // The UUID or username of the player.
-    const uuid = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`)).data.data.player.id;    console.log(uuid);
-    const username = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`)).data.data.player.username;    console.log(username);
+    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
+    const uuid = (await playerData.data.player.id);    console.log(uuid);
+    const username = (await playerData.data.player.username);    console.log(username);
+    
     if (!uuidOrUsername) {
       return respond({text: "Usage: /craftie-player <UUID/Username>"})
     }
+    
     GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
     const canvas = createCanvas(800, 400);
     const ctx = canvas.getContext('2d');
@@ -79,9 +83,6 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       ts: message.ts,
       text: "Status generated successfully! Find in thread.",
     });
-
-
-
 
 
   } catch(err) {
@@ -150,25 +151,11 @@ Online Players: ${onlinePlayers}`
 		}
 	]
 })
-    
-
-    
-      /*text:
-      `Server Status of ${response.host}:${response.port}:
-      ${(response.online) ? 
-      " 🟢 Server Online" : " 🔴 Server Offline"}
-      Minecraft version: ${(edition == 'java') ? response.version.name_raw : response.version.name}
-      MOTD: ${response.motd.clean.trim().replace(/\n/g, ' ')}
-      Players: ${response.players.online}/${response.players.max}
-      Online Players: ${response.players.list && response.players.list.length > 0 ? response.players.list.map(player => player.name_clean).join(', ') : 'None/Unknown'}`
-    }); */
-
 
   } catch(err) {
     console.log(err)
     await respond({ text: "Failed to fetch. Please ensure the server is online and the host/port are correct. Otherwise, the server may be experiencing issues." });
   }
-
   });
   
 
