@@ -125,11 +125,20 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
     ? response.players.list.map(player => player.name_clean).join(', ')
     : 'None/Unknown';
   if (edition == 'java') {
-    try{
-      srvPort = (await axios.get(`https://api.mcstatus.io/v2/status/java/${host}${(port) ? `:${port}` : ''}`)).data.srv_record.port;
-    } catch (err) {
-      console.error("Error fetching SRV record:", err);
+    try {
+      const srvResp = await axios.get(`https://api.mcstatus.io/v2/status/java/${host}${(port) ? `:${port}` : ''}`);
+      const srvRecord = srvResp.data.srv_record ?? null;
+      if (srvRecord && srvRecord.port) {
+        srvPort = srvRecord.port;
+      }
+      else if (port) {
+        srvPort = port;
+      }
     }
+    catch (err) {
+      console.log(err);
+    }
+
   }
   const imageUrl = (edition == 'java') ? `https://sr-api.sfirew.com/server/${response.host}:${(srvPort) ? srvPort : response.port}/icon.png` : "https://minecraft.wiki/images/Unknown_server.png";
   await respond(
