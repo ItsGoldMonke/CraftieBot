@@ -73,14 +73,14 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.strokeStyle = '#00000065';
     ctx.strokeRect(0, 0, 800, 400);
     console.log("Created canvas and background.");
-    ctx.drawImage(await loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/200`), 560, 100, 200, 200);
+    ctx.drawImage(loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/200`), 560, 100, 200, 200);
     console.log("Loaded player head image.");
     ctx.font = '32px Minecraft';
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`Player Info for ${username}:`, 20, 40);
     console.log("Wrote player info text.");
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
-    ctx.drawImage(await loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`), 20, 100, 150, 300);
+    ctx.drawImage(loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`), 20, 100, 150, 300);
     console.log("Loaded player skin image.");
     const buffer = canvas.toBuffer('image/png');
     console.log("Created Buffer")
