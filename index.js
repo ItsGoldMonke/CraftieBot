@@ -49,18 +49,18 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
     const args = command.text.trim().split(/\s+/);
     const uuidOrUsername = args[0]; // The UUID or username of the player.
-    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
-    const uuid = (await playerData.data.data.player.id);    console.log(uuid);
-    const username = (await playerData.data.data.player.username);    console.log(username);
     
     if (!uuidOrUsername) {
       return await client.chat.update({
-      channel: command.channel_id,
-      ts: message.ts,
-      text: "Status not generated. Please provide a UUID or username.",
-    });
+        channel: command.channel_id,
+        ts: message.ts,
+        text: "Status not generated. Please provide a UUID or username.",
+      });
       console.log("No UUID or username provided.");
     }
+    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
+    const uuid = (await playerData.data.data.player.id);    console.log(uuid);
+    const username = (await playerData.data.data.player.username);    console.log(username);
     
     console.log("Starting to generate status image...");
     GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
@@ -75,7 +75,13 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     console.log("Created canvas and background.");
     
     try {
-      const head = await loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/200`);
+      const response = await axios.get(`https://api.mcheads.org/head/${uuid}/200`,
+        {
+          responseType: 'arraybuffer',
+          timeout: 5000
+        }
+      );
+      const head = await loadImage(Buffer.from(response.data));
       ctx.drawImage(head, 560, 100, 200, 200);
       console.log("Loaded player head image.");
     } catch (err) {
@@ -88,14 +94,22 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.fillText(`Player Info for ${username}:`, 20, 40);
     console.log("Wrote player info text.");
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
+    
     try {
-      const skin = await loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`);
+      const response = await axios.get(`https://api.mcheads.org/minecraft/player/${uuid}/150`,
+        {
+          responseType: 'arraybuffer',
+          timeout: 5000
+        }
+      );
+      const skin = await loadImage(Buffer.from(response.data));
       ctx.drawImage(skin, 20, 100, 150, 300);
+      
       console.log("Loaded player skin image.");
-
     } catch (err) {
       console.log("Failed to load player skin image.", err);
     }
+
     const buffer = canvas.toBuffer('image/png');
     console.log("Created Buffer")
     const result = await client.filesUploadV2({
