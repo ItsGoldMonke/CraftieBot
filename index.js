@@ -13,6 +13,7 @@ const app = new App({
 
 app.command("/craftie-help", async ({ command, ack, respond }) => {
     await ack();
+    console.log(`acknowledged command: ${command}`);
     await respond ({
         text: 
         `
@@ -33,6 +34,7 @@ app.command("/craftie-ping", async ({ command, ack, respond }) => {
 
 app.command("/craftie-player", async ({ command, ack, respond, client }) => {
   await ack();
+  console.log(`acknowledged command: ${command}`);
   try {
 
     // Send inital message to indicate that the bot is processing the request and in order to create a thread.
@@ -41,17 +43,23 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       thread_ts: command.ts,
       text: "Generating status..."
     });
+    console.log(`Sent initial message: ${message.ts}`);
 
 
 
     const args = command.text.trim().split(/\s+/);
     const uuidOrUsername = args[0]; // The UUID or username of the player.
     const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
-    const uuid = (await playerData.data.player.id);    console.log(uuid);
-    const username = (await playerData.data.player.username);    console.log(username);
+    const uuid = (await playerData.data.data.player.id);    console.log(uuid);
+    const username = (await playerData.data.data.player.username);    console.log(username);
     
     if (!uuidOrUsername) {
-      return respond({text: "Usage: /craftie-player <UUID/Username>"})
+      return await client.chat.update({
+      channel: command.channel_id,
+      ts: message.ts,
+      text: "Status not generated. Please provide a UUID or username.",
+    });
+      console.log("No UUID or username provided.");
     }
     
     GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
@@ -68,15 +76,15 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
     ctx.drawImage(await loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`), 20, 100, 150, 300);
 
-
-
     const buffer = canvas.toBuffer('image/png');
+    console.log("Created Buffer")
     const result = await client.filesUploadV2({
       channel_id: command.channel_id,
       thread_ts: message.ts,
       file: buffer,
       filename: "status.png"
     });
+    console.log("Uploaded file")
 
     await client.chat.update({
       channel: command.channel_id,
@@ -87,13 +95,15 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
   } catch(err) {
     console.log(err)
-    await respond({ text: "Failed to fetch. Please ensure the server is online and the host/port are correct. Otherwise, the server may be experiencing issues." });
+    console.log(`Error occured. See above`)
+    await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
   }
 });
 
 
 app.command("/craftie-status", async ({ command, ack, respond }) => {
   await ack();
+  console.log(`acknowledged command: ${command}`);
   try {
   
   const args = command.text.trim().split(/\s+/);
