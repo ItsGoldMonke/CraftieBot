@@ -62,20 +62,26 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("No UUID or username provided.");
     }
     
+    console.log("Starting to generate status image...");
     GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
+    console.log("Registered Minecraft font.");
+
     const canvas = createCanvas(800, 400);
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#3e3e3e';
     ctx.fillRect(0, 0, 800, 400);
     ctx.strokeStyle = '#00000065';
     ctx.strokeRect(0, 0, 800, 400);
+    console.log("Created canvas and background.");
     ctx.drawImage(await loadImage(`https://api.mcheads.org/head/${uuidOrUsername}/200`), 560, 100, 200, 200);
+    console.log("Loaded player head image.");
     ctx.font = '32px Minecraft';
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`Player Info for ${username}:`, 20, 40);
+    console.log("Wrote player info text.");
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
     ctx.drawImage(await loadImage(`https://api.mcheads.org/player/${uuidOrUsername}/150`), 20, 100, 150, 300);
-
+    console.log("Loaded player skin image.");
     const buffer = canvas.toBuffer('image/png');
     console.log("Created Buffer")
     const result = await client.filesUploadV2({
