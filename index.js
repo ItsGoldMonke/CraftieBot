@@ -78,7 +78,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       const response = await axios.get(`https://api.mcheads.org/head/${uuid}/200`,
         {
           responseType: 'arraybuffer',
-          timeout: 5000
+          timeout: 15000
         }
       );
       const head = await loadImage(Buffer.from(response.data));
@@ -96,10 +96,10 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
     
     try {
-      const response = await axios.get(`https://api.mcheads.org/minecraft/player/${uuid}/150`,
+      const response = await axios.get(`https://api.mcheads.org/player/${uuid}/150`,
         {
           responseType: 'arraybuffer',
-          timeout: 5000
+          timeout: 15000
         }
       );
       const skin = await loadImage(Buffer.from(response.data));
