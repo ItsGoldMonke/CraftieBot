@@ -61,6 +61,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
     const uuid = (await playerData.data.data.player.id);    console.log(uuid);
     const username = (await playerData.data.data.player.username);    console.log(username);
+    let errorsOccured = false;
     
     console.log("Starting to generate status image...");
     GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
@@ -86,6 +87,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("Loaded player head image.");
     } catch (err) {
       console.log("Failed to load player head image.", err);
+      errorsOccured = true;
     }
     
     
@@ -108,6 +110,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("Loaded player skin image.");
     } catch (err) {
       console.log("Failed to load player skin image.", err);
+      errorsOccured = true;
     }
 
     const buffer = canvas.toBuffer('image/png');
@@ -118,7 +121,15 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       file: buffer,
       filename: "status.png"
     });
-    console.log("Uploaded file")
+
+    if (errorsOccured) { 
+      const occuredErrors = await client.chat.postMessage({
+      channel: command.channel_id,
+      thread_ts: message.ts,
+      text: "Errors may have occured while generating the status. If the image is missing or incomplete, please try again for a full image."
+    }) 
+  };
+    console.log("Uploaded file");
 
     await client.chat.update({
       channel: command.channel_id,
