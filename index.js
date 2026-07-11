@@ -141,7 +141,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
   } catch(err) {
     console.log(err)
     console.log(`Error occured. See above`)
-    await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
+    return await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
   }
 });
 
