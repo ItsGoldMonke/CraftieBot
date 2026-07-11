@@ -92,7 +92,6 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     let errorsOccured = false;
     
     console.log("Starting to generate status image...");
-    console.log("Registered Minecraft font.");
     
     const canvas = createCanvas(800, 400);
     const ctx = canvas.getContext('2d');
@@ -254,6 +253,7 @@ Online Players: ${onlinePlayers}`
   
 
   GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
+  console.log("Registered Minecraft font.");
   
 (async () => {
   await app.start();
