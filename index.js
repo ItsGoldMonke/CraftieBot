@@ -32,7 +32,7 @@ async function getWithRetry(url, options = {}, retries = 3) {
 
 app.command("/craftie-help", async ({ command, ack, respond }) => {
     await ack();
-    console.log(`acknowledged command: ${command}`);
+    console.log(`acknowledged command: ${command.text}`);
     await respond ({
         text: 
         `
@@ -53,7 +53,7 @@ app.command("/craftie-ping", async ({ command, ack, respond }) => {
 
 app.command("/craftie-player", async ({ command, ack, respond, client }) => {
   await ack();
-  console.log(`acknowledged command: ${command}`);
+  console.log(`acknowledged command: ${command.text}`);
   try {
 
     // Send inital message to indicate that the bot is processing the request and in order to create a thread.
@@ -175,7 +175,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
 app.command("/craftie-status", async ({ command, ack, respond }) => {
   await ack();
-  console.log(`acknowledged command: ${command}`);
+  console.log(`acknowledged command: ${command.text}`);
   try {
   
   const args = command.text.trim().split(/\s+/);
