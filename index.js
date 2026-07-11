@@ -11,6 +11,25 @@ const app = new App({
   socketMode: true
 });
 
+async function getWithRetry(url, options = {}, retries = 3) {
+  let lastError;
+  for (i = 0; i < retries; i++) {
+    try {
+      return await axios.get(url, options);
+    } catch (err) {
+      lastError = err;
+
+      console.log(`Request ${url} failed, attempt ${i+1}/${retries}: ${err.code}`);
+
+      if (i < retries - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  }
+  throw lastError;
+}
+
+
 app.command("/craftie-help", async ({ command, ack, respond }) => {
     await ack();
     console.log(`acknowledged command: ${command}`);
@@ -85,7 +104,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     console.log("Created canvas and background.");
     
     try {
-      const response = await axios.get(`https://api.mcheads.org/head/${uuid}/200`,
+      const response = await getWithRetry(`https://api.mcheads.org/head/${uuid}/200`,
         {
           responseType: 'arraybuffer',
           timeout: 15000
@@ -107,7 +126,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     ctx.fillText(`UUID: ${uuid}`, 20, 80);
     
     try {
-      const response = await axios.get(`https://api.mcheads.org/player/${uuid}/150`,
+      const response = await getWithRetry(`https://api.mcheads.org/player/${uuid}/150`,
         {
           responseType: 'arraybuffer',
           timeout: 15000
