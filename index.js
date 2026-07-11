@@ -59,6 +59,15 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("No UUID or username provided.");
     }
     const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
+    const userExists = (await playerData.data.success);
+    if (!userExists) {
+      return await client.chat.update({
+        channel: command.channel_id,
+        ts: message.ts,
+        text: "Status not generated. Player does not exists. (or an error occured)",
+      });
+      console.log("Error: Player does not exist.");
+    };
     const uuid = (await playerData.data.data.player.id);    console.log(uuid);
     const username = (await playerData.data.data.player.username);    console.log(username);
     let errorsOccured = false;
@@ -141,7 +150,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
   } catch(err) {
     console.log(err)
     console.log(`Error occured. See above`)
-    return await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
+    await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
   }
 });
 
