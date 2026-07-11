@@ -70,22 +70,22 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     const uuidOrUsername = args[0]; // The UUID or username of the player.
     
     if (!uuidOrUsername) {
+      console.log("No UUID or username provided.");
       return await client.chat.update({
         channel: command.channel_id,
         ts: message.ts,
         text: "Status not generated. Please provide a UUID or username.",
       });
-      console.log("No UUID or username provided.");
     }
     const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
     const userExists = (await playerData.data.success);
     if (!userExists) {
+      console.log("Error: Player does not exist.");
       return await client.chat.update({
         channel: command.channel_id,
         ts: message.ts,
         text: "Status not generated. Player does not exists. (or an error occured)",
       });
-      console.log("Error: Player does not exist.");
     };
     const uuid = (await playerData.data.data.player.id);    console.log(uuid);
     const username = (await playerData.data.data.player.username);    console.log(username);
