@@ -13,7 +13,7 @@ const app = new App({
 
 async function getWithRetry(url, options = {}, retries = 3) {
   let lastError;
-  for (i = 0; i < retries; i++) {
+  for (let i = 0; i < retries; i++) {
     try {
       return await axios.get(url, options);
     } catch (err) {
