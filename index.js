@@ -105,7 +105,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       const response = await getWithRetry(`https://api.mcheads.org/head/${uuid}/200`,
         {
           responseType: 'arraybuffer',
-          timeout: 15000
+          timeout: 5000
         }
       );
       const head = await loadImage(Buffer.from(response.data));
@@ -127,7 +127,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       const response = await getWithRetry(`https://api.mcheads.org/player/${uuid}/150`,
         {
           responseType: 'arraybuffer',
-          timeout: 15000
+          timeout: 5000
         }
       );
       const skin = await loadImage(Buffer.from(response.data));
