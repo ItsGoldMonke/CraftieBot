@@ -78,7 +78,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       });
     }
     const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {validateStatus: (status) => status >= 200 && status < 500}));
-    const userExists = (await playerData.data.success);
+    const userExists = (playerData.data.success);
     if (!userExists) {
       console.log("Error: Player does not exist.");
       return await client.chat.update({
@@ -87,8 +87,8 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
         text: "Status not generated. Player does not exists. (or an error occured)",
       });
     };
-    const uuid = (await playerData.data.data.player.id);    console.log(uuid);
-    const username = (await playerData.data.data.player.username);    console.log(username);
+    const uuid = (playerData.data.data.player.id);    console.log(uuid);
+    const username = (playerData.data.data.player.username);    console.log(username);
     let errorsOccured = false;
     
     console.log("Starting to generate status image...");
