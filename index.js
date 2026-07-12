@@ -77,7 +77,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
         text: "Status not generated. Please provide a UUID or username.",
       });
     }
-    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`));
+    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {validateStatus: (status) => status >= 200 && status < 500}));
     const userExists = (await playerData.data.success);
     if (!userExists) {
       console.log("Error: Player does not exist.");
