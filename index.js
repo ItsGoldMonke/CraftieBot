@@ -141,13 +141,22 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
     const buffer = canvas.toBuffer('image/png');
     console.log("Created Buffer")
+
+    await client.chat.update({
+      channel: command.channel_id,
+      ts: message.ts,
+      text: "Status generated successfully! Find in thread.",
+    });
+    
     const result = await client.filesUploadV2({
       channel_id: command.channel_id,
       thread_ts: message.ts,
       file: buffer,
       filename: "status.png"
     });
-
+    
+    console.log("Uploaded file");
+    
     if (errorsOccured) { 
       const occuredErrors = await client.chat.postMessage({
       channel: command.channel_id,
@@ -155,13 +164,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       text: "Errors may have occured while generating the status. If the image is missing or incomplete, please try again for a full image."
     }) 
   };
-    console.log("Uploaded file");
-
-    await client.chat.update({
-      channel: command.channel_id,
-      ts: message.ts,
-      text: "Status generated successfully! Find in thread.",
-    });
+  
 
 
   } catch(err) {
