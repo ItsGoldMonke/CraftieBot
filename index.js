@@ -233,11 +233,11 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
 			"text": {
 				"type": "mrkdwn",
 				"text": `Server Status of ${response.host}:${(srvPort) ? srvPort : response.port}
-        ${(response.online) ? "🟢 Server Online" : "🔴 Server Offline"}
-        Minecraft version: ${versionName}
-        MOTD: \`${motd}\`
-        Players: ${playersOnline}/${playersMax}
-        Online Players: ${onlinePlayers}`
+    ${(response.online) ? "🟢 Server Online" : "🔴 Server Offline"}
+    Minecraft version: ${versionName}
+    MOTD: \`${motd}\`
+    Players: ${playersOnline}/${playersMax}
+    Online Players: ${onlinePlayers}`
 			},
 			"accessory": {
 				"type": "image",
