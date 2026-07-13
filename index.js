@@ -84,12 +84,12 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       return await client.chat.update({
         channel: command.channel_id,
         ts: message.ts,
-        text: "Status not generated. Player does not exists. (or an error occured)",
+        text: "Status not generated. Player does not exists. (or an error occurred)",
       });
     };
     const uuid = (playerData.data.data.player.id);    console.log(uuid);
     const username = (playerData.data.data.player.username);    console.log(username);
-    let errorsOccured = false;
+    let errorsOccurred = false;
     
     console.log("Starting to generate status image...");
     
@@ -113,7 +113,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("Loaded player head image.");
     } catch (err) {
       console.log("Failed to load player head image.", err);
-      errorsOccured = true;
+      errorsOccurred = true;
     }
     
     
@@ -136,7 +136,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
       console.log("Loaded player skin image.");
     } catch (err) {
       console.log("Failed to load player skin image.", err);
-      errorsOccured = true;
+      errorsOccurred = true;
     }
 
     const buffer = canvas.toBuffer('image/png');
@@ -157,11 +157,11 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
     
     console.log("Uploaded file");
     
-    if (errorsOccured) { 
-      const occuredErrors = await client.chat.postMessage({
+    if (errorsOccurred) { 
+      const occurredErrors = await client.chat.postMessage({
       channel: command.channel_id,
       thread_ts: message.ts,
-      text: "Errors may have occured while generating the status. If the image is missing or incomplete, please try again for a full image."
+      text: "Errors may have occurred while generating the status. If the image is missing or incomplete, please try again for a full image."
     }) 
   };
   
@@ -169,7 +169,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
 
   } catch(err) {
     console.log(err)
-    console.log(`Error occured. See above`)
+    console.log(`Error occurred. See above`)
     await respond({ text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues." });
   }
 });
