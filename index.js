@@ -5,6 +5,9 @@ const mcstatus = require('node-mcstatus');
 const axios = require('axios');
 const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
 
+GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
+console.log("Registered Minecraft font.");
+
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
@@ -248,6 +251,7 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
 	]
 })
 
+
   } catch(err) {
     console.log(err)
     await respond({ text: "Failed to fetch. Please ensure the server is online and the host/port are correct. Otherwise, the server may be experiencing issues." });
@@ -255,9 +259,6 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
   });
   
 
-  GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
-  console.log("Registered Minecraft font.");
-  
 (async () => {
   await app.start();
   console.log("bot is running!");
