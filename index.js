@@ -80,7 +80,7 @@ app.command("/craftie-player", async ({ command, ack, respond, client }) => {
         text: "Status not generated. Please provide a UUID or username.",
       });
     }
-    const playerData = (await axios.get(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {validateStatus: (status) => status >= 200 && status < 500}));
+    const playerData = (await getWithRetry(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {validateStatus: (status) => status >= 200 && status < 500}));
     const userExists = (playerData.data.success);
     if (!userExists) {
       console.log("Error: Player does not exist.");
@@ -213,7 +213,7 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
     : 'None/Unknown';
   if (edition == 'java') {
     try {
-      const srvResp = await axios.get(`https://api.mcstatus.io/v2/status/java/${host}${(port) ? `:${port}` : ''}`);
+      const srvResp = await getWithRetry(`https://api.mcstatus.io/v2/status/java/${host}${(port) ? `:${port}` : ''}`);
       const srvRecord = srvResp.data.srv_record ?? null;
       if (srvRecord && srvRecord.port) {
         srvPort = srvRecord.port;
