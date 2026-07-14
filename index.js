@@ -206,7 +206,7 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
     : (response.version?.name ?? 'Unavailable');
   const motd = response.motd?.clean?.trim().replace(/\n/g, ' ') ?? 'Unavailable';
   const playersOnline = response.players?.online ?? 0;
-  const playersMax = response.players?.max ?? 'Unavailable';
+  const playersMax = response.players?.max ?? '0';
   let srvPort = response.port;
   const onlinePlayers = response.players?.list && response.players.list.length > 0
     ? response.players.list.map(player => player.name_clean).join(', ')
