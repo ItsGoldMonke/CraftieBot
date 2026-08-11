@@ -227,7 +227,7 @@ app.command("/craftie-status", async ({ command, ack, respond }) => {
     }
 
   }
-  const imageUrl = (edition == 'java') ? `https://sr-api.sfirew.com/server/${response.host}:${(srvPort) ? srvPort : response.port}/icon.png` : "https://minecraft.wiki/images/Unknown_server.png";
+  const imageUrl = (edition == 'java') ? `https://api.mcstatus.io/v2/icon/${response.host}:${(srvPort) ? srvPort : response.port}/icon.png` : "https://minecraft.wiki/images/Unknown_server.png";
   await respond(
         {
 	blocks: [
