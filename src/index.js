@@ -5,7 +5,8 @@ const mcstatus = require("node-mcstatus");
 const axios = require("axios");
 const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
 
-GlobalFonts.registerFromPath("./MinecraftDefault-Regular.ttf", "Minecraft");
+GlobalFonts.registerFromPath("./fonts/MinecraftDefault-Regular.ttf", "Minecraft");
+
 console.log("Registered Minecraft font.");
 
 const app = new App({
