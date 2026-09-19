@@ -1,6 +1,8 @@
 const { App } = require("@slack/bolt");
 const { getWithRetry } = require("../core/utils/requests");
 const { createPlayerCard } = require("../core/utils/playerImage");
+const mcstatus = require("node-mcstatus");
+const { getServerStatus } = require("../core/commands/serverStatus");
 
 async function startSlackBot(token, apptoken, socketMode) {
     const app = new App({
@@ -107,6 +109,7 @@ async function startSlackBot(token, apptoken, socketMode) {
     app.command("/craftie-status", async ({ command, ack, respond }) => {
         await ack();
         console.log(`acknowledged command: ${command.text}`);
+
         try {
             const args = command.text.trim().split(/\s+/);
 
@@ -117,27 +120,21 @@ async function startSlackBot(token, apptoken, socketMode) {
             if (!edition || !host) {
                 return respond({ text: "Usage: /craftie-status (java|bedrock) <host> [port]" });
             }
-            let response;
-            if (edition == "java") {
-                response = await mcstatus.statusJava(host, port);
-            } else if (edition == "bedrock") {
-                response = await mcstatus.statusBedrock(host, port);
-            } else {
-                return respond({ text: "Usage: /craftie-status (java|bedrock) <host> [port]" });
+
+            // get status and return if failed
+            const status = await getServerStatus(edition, host, port);
+            if (status.failed == true) {
+                return respond({ text: status.failReason });
             }
 
-            const versionName =
-                edition == "java"
-                    ? (response.version?.name_raw ?? "Unavailable")
-                    : (response.version?.name ?? "Unavailable");
-            const motd = response.motd?.clean?.trim().replace(/\n/g, " ") ?? "Unavailable";
-            const playersOnline = response.players?.online ?? 0;
-            const playersMax = response.players?.max ?? "0";
-            let srvPort = response.port;
-            const onlinePlayers =
-                response.players?.list && response.players.list.length > 0
-                    ? response.players.list.map(player => player.name_clean).join(", ")
-                    : "None/Unknown";
+            const versionName = status.version;
+            const motd = status.motd;
+            const playersOnline = status.players?.online;
+            const playersMax = status.players?.max;
+            const onlinePlayers = status.players?.online;
+            const response = status.raw;
+
+            let srvPort = status.port;
             if (edition == "java") {
                 try {
                     const srvResp = await getWithRetry(
@@ -157,6 +154,7 @@ async function startSlackBot(token, apptoken, socketMode) {
                 edition == "java"
                     ? `https://api.mcstatus.io/v2/icon/${response.host}:${srvPort ? srvPort : response.port}`
                     : "https://minecraft.wiki/images/Unknown_server.png";
+
             await respond({
                 blocks: [
                     {
