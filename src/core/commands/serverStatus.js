@@ -71,13 +71,12 @@ async function getServerStatus(edition, host, port) {
     };
 }
 
-async function test() {
+/* async function test() {
     const status = await getServerStatus("java", "questssmp.goldmonke.me");
     console.log(status);
 }
 
-test();
-// console.log(getServerStatus("java", "play.cubecraft.net"));
+test(); */
 
 module.exports = {
     getServerStatus,
