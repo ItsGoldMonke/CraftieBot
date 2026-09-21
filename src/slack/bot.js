@@ -131,29 +131,12 @@ async function startSlackBot(token, apptoken, socketMode) {
             const motd = status.motd;
             const playersOnline = status.players?.online;
             const playersMax = status.players?.max;
-            const onlinePlayers = status.players?.online;
+            const players = status.players?.list;
             const response = status.raw;
 
-            let srvPort = status.port;
-            if (edition == "java") {
-                try {
-                    const srvResp = await getWithRetry(
-                        `https://api.mcstatus.io/v2/status/java/${host}${port ? `:${port}` : ""}`,
-                    );
-                    const srvRecord = srvResp.data.srv_record ?? null;
-                    if (srvRecord && srvRecord.port) {
-                        srvPort = srvRecord.port;
-                    } else if (port) {
-                        srvPort = port;
-                    }
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-            const imageUrl =
-                edition == "java"
-                    ? `https://api.mcstatus.io/v2/icon/${response.host}:${srvPort ? srvPort : response.port}`
-                    : "https://minecraft.wiki/images/Unknown_server.png";
+            let srvPort = status.srv_record?.port;
+
+            const imageUrl = status.image_url;
 
             await respond({
                 blocks: [
@@ -161,12 +144,12 @@ async function startSlackBot(token, apptoken, socketMode) {
                         type: "section",
                         text: {
                             type: "mrkdwn",
-                            text: `Server Status of ${response.host}:${srvPort ? srvPort : response.port}
+                            text: `Server Status of ${status.host}:${srvPort ? srvPort : response.port}
     ${response.online ? "🟢 Server Online" : "🔴 Server Offline"}
     Minecraft version: ${versionName}
     MOTD: \`${motd}\`
     Players: ${playersOnline}/${playersMax}
-    Online Players: ${onlinePlayers}`,
+    Online Players: ${players}`,
                         },
                         accessory: {
                             type: "image",

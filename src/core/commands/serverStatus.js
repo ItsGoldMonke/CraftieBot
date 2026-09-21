@@ -42,12 +42,23 @@ async function getServerStatus(edition, host, port) {
               ? "None"
               : "Unknown";
 
+    const imageUrl =
+        edition == "java"
+            ? `https://api.mcstatus.io/v2/icon/${response.host}:${response.srv_record?.port ? response.srv_record?.port : response.port}`
+            : "https://minecraft.wiki/images/Unknown_server.png";
+    console.log(imageUrl);
+
     return {
         failed: false,
         edition: edition.toLowerCase(),
         host: response.host ?? host,
         port: response.port ?? port,
+        srv_record: {
+            host: response.srv_record?.host,
+            port: response.srv_record?.port,
+        },
         online: response.online ?? false,
+        image_url: imageUrl,
 
         version: versionName,
         motd,
@@ -61,7 +72,7 @@ async function getServerStatus(edition, host, port) {
 }
 
 async function test() {
-    const status = await getServerStatus("javsa", "play.cubecraft.net");
+    const status = await getServerStatus("java", "questssmp.goldmonke.me");
     console.log(status);
 }
 

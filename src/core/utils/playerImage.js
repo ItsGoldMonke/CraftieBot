@@ -2,6 +2,7 @@ const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const { getWithRetry } = require("./requests");
 
 async function createPlayerCard(uuid, username) {
+    let errorsOccurred = false;
     const canvas = createCanvas(800, 400);
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#3e3e3e";
@@ -43,7 +44,7 @@ async function createPlayerCard(uuid, username) {
         errorsOccurred = true;
     }
     console.log("Created Buffer");
-    return (buffer = canvas.toBuffer("image/png"));
+    return ((buffer = canvas.toBuffer("image/png")), errorsOccurred);
 }
 
 module.exports = {
