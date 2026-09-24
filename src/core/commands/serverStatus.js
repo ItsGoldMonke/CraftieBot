@@ -4,6 +4,10 @@ async function getServerStatus(edition, host, port) {
     let response = null;
     let versionName = "Unavailable";
 
+    if (port == null) {
+        port = 25565;
+    }
+
     switch (edition) {
         case "java":
             response = await mcstatus.statusJava(host, port);
