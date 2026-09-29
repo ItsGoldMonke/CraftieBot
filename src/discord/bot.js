@@ -16,6 +16,8 @@ const {
     ActionRowBuilder,
 } = require("discord.js");
 const { getServerStatus } = require("../core/commands/serverStatus");
+const { getWithRetry } = require("../core/utils/requests");
+const { createPlayerCard } = require("../core/utils/playerImage");
 
 async function startDiscordBot(token) {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -38,7 +40,7 @@ async function startDiscordBot(token) {
 
             const status = await getServerStatus(edition, host, port);
             if (status.failed == true) {
-                await interaction.reply(`Failed: ${status.failreason}`);
+                return await interaction.reply(`Failed: ${status.failReason}`);
             }
 
             const versionName = status.version;
@@ -82,6 +84,42 @@ async function startDiscordBot(token) {
                 allowedMentions: { parse: [] },
             });
         }
+        if (interaction.commandName === "player-status") {
+            await interaction.reply({ content: "Generating status...", flags: MessageFlags.Ephemeral });
+            const uuidOrUsername = interaction.options.getString("identifier");
+            const playerData = await getWithRetry(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {
+                validateStatus: status => status >= 200 && status < 500,
+            });
+            console.log(playerData);
+            const userExists = playerData.data.success;
+            if (!userExists) {
+                console.log("Error: Player does not exist");
+                return await interaction.editReply({
+                    content: "Status not generated. Player does not exists. (or an error occurred)",
+                });
+            }
+            const uuid = playerData.data.data.player.id;
+            console.log("UUID:", uuid);
+            const username = playerData.data.data.player.username;
+            console.log("Username:", username);
+            let errorsOccurred = false;
+            console.log("Starting to generate status message.");
+            await createPlayerCard(uuid, username);
+            await interaction.editReply({
+                content: "Status generated: ",
+                files: [
+                    {
+                        attachment: buffer,
+                        name: "status.png",
+                    },
+                ],
+            });
+        }
+        if (interaction.commandName === "help") {
+            await interaction.reply(
+                "Available commands:\n/help - Show this message \n/ping - Check bot latency\n/status - Check Minecraft server status\n/player-status - Get player info",
+            );
+        }
     });
 
     client.login(token);
@@ -90,86 +128,3 @@ async function startDiscordBot(token) {
 module.exports = {
     startDiscordBot,
 };
-
-// example from dweeb:
-// Components V2 message — discord.js v14.19 or newer.
-// Designed in DWEEB (https://dweeb.faizo.net). Edit the text, then send.
-
-const container = new ContainerBuilder()
-    .setAccentColor(0xd57474)
-    .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-            [
-                "# 🧩 The Components V2 starter kit",
-                "A hands-on tour of every block DWEEB gives you — and it's all live. **Click any component in the editor to edit it**, watch the preview update instantly, then hit **Send** or **Share** when it looks right.",
-            ].join("\n"),
-        ),
-    )
-    .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Large))
-    .addSectionComponents(
-        new SectionBuilder()
-            .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                    "**Sections** set a short stack of text beside a single accessory. Pair one with a **thumbnail** — like this — for profile cards, product shots, and tidy call-outs.",
-                ),
-            )
-            .setThumbnailAccessory(
-                new ThumbnailBuilder()
-                    .setURL("https://dweeb.faizo.net/media/defaults/dweeb-default-thumbnail.jpg")
-                    .setDescription("Thumbnail accessory"),
-            ),
-        new SectionBuilder()
-            .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                    "Give a section a **button** instead and the same layout becomes an action card: a headline, a line of detail, and one tappable action docked on the right.",
-                ),
-            )
-            .setButtonAccessory(
-                new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Open").setURL("https://dweeb.faizo.net"),
-            ),
-    )
-    .addMediaGalleryComponents(
-        new MediaGalleryBuilder().addItems(
-            new MediaGalleryItemBuilder()
-                .setURL("https://dweeb.faizo.net/media/defaults/dweeb-showcase-gallery-1.jpg")
-                .setDescription("Media galleries hold up to 10 images or clips"),
-            new MediaGalleryItemBuilder()
-                .setURL("https://dweeb.faizo.net/media/defaults/dweeb-showcase-gallery-2.jpg")
-                .setDescription("Give every item its own description…"),
-            new MediaGalleryItemBuilder()
-                .setURL("https://dweeb.faizo.net/media/defaults/dweeb-showcase-gallery-3.jpg")
-                .setDescription("…or mark any one of them as a spoiler"),
-        ),
-    )
-    .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Large))
-    .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-            [
-                "**Every text block speaks full Discord markdown.**",
-                "Blend **bold**, *italic*, __underline__, ~~strikethrough~~, `inline code`, and ||spoilers|| — each renders exactly as Discord shows it. Drop in [masked links](https://dweeb.faizo.net), lists, and quotes wherever you need them:",
-                "> Good messages look effortless. DWEEB just makes effortless easy.",
-            ].join("\n"),
-        ),
-        new TextDisplayBuilder().setContent(
-            "**There's even more in the box** — dropdown menus, clickable (non-link) buttons, and file uploads are all one tap away in the **Add component** menu.",
-        ),
-    )
-    .addActionRowComponents(
-        new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Link)
-                .setLabel("📖 Read the docs")
-                .setURL("https://discord.com/developers/docs/components/reference"),
-            new ButtonBuilder()
-                .setStyle(ButtonStyle.Link)
-                .setLabel("💬 Join the Discord")
-                .setURL("https://discord.gg/2wB7rHRDg2"),
-        ),
-    );
-
-const text = new TextDisplayBuilder().setContent(
-    [
-        "-# 💡 **Posts through any webhook:** text, layout, media, and link buttons. Interactive pieces — clickable buttons and select menus — need a **bot or app** to own the webhook; a plain user webhook will reject them.",
-        "-# Reopen this tour any time from the **Message directory**, or choose **Clear current message** under More to start fresh.",
-    ].join("\n"),
-);

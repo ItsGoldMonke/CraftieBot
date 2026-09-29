@@ -18,7 +18,15 @@ const commands = [
         .addStringOption(option =>
             option.setName("host").setDescription("Minecraft Server Adress / IP").setRequired(true),
         )
-        .addIntegerOption(option => option.setName("port").setDescription("Minecraft server point").setRequired(false)),
+        .addIntegerOption(option => option.setName("port").setDescription("Minecraft server port").setRequired(false)),
+
+    new SlashCommandBuilder()
+        .setName("player-status")
+        .setDescription("Get info of a Minecraft Player")
+        .addStringOption(option =>
+            option.setName("identifier").setDescription("The player's UUID / Username").setRequired(true),
+        ),
+    new SlashCommandBuilder().setName("help").setDescription("See all commands supported by Craftie"),
 ].map(command => command.toJSON());
 const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
 
