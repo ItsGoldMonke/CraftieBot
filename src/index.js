@@ -1,10 +1,10 @@
 require("dotenv").config();
-
 const { GlobalFonts } = require("@napi-rs/canvas");
 const { startSlackBot } = require("./slack/bot");
 const { startDiscordBot } = require("./discord/bot");
+const config = require("./core/utils/config");
 
-const registered = GlobalFonts.registerFromPath("src/fonts/MinecraftDefault-Regular.ttf", "Minecraft");
+const registered = GlobalFonts.registerFromPath(`src/fonts/${config.images.font}`, "Minecraft");
 
 console.log("Registered Fonts:", registered);
 
