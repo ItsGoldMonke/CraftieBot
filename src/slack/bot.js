@@ -1,8 +1,9 @@
 const { App } = require("@slack/bolt");
 const { getWithRetry } = require("../core/utils/requests");
-const { createPlayerCard } = require("../core/utils/playerImage");
-const mcstatus = require("node-mcstatus");
+const { createPlayerCard } = require("../core/commands/playerImage");
 const { getServerStatus } = require("../core/commands/serverStatus");
+const config = require("../core/utils/config");
+const messages = require("../core/utils/messages");
 
 async function startSlackBot(token, apptoken, socketMode) {
     const app = new App({
@@ -51,19 +52,22 @@ async function startSlackBot(token, apptoken, socketMode) {
                 return await client.chat.update({
                     channel: command.channel_id,
                     ts: message.ts,
-                    text: "Status not generated. Please provide a UUID or username.",
+                    text: messages.errors.invalidArgs,
                 });
             }
-            const playerData = await getWithRetry(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {
-                validateStatus: status => status >= 200 && status < 500,
-            });
+            const playerData = await getWithRetry(
+                config.apiUrls.playerData.replace("${uuidOrUsername}", uuidOrUsername),
+                {
+                    validateStatus: status => status >= 200 && status < 500,
+                },
+            );
             const userExists = playerData.data.success;
             if (!userExists) {
                 console.log("Error: Player does not exist.");
                 return await client.chat.update({
                     channel: command.channel_id,
                     ts: message.ts,
-                    text: "Status not generated. Player does not exists. (or an error occurred)",
+                    text: messages.errors.noUserFound,
                 });
             }
             const uuid = playerData.data.data.player.id;
@@ -101,7 +105,7 @@ async function startSlackBot(token, apptoken, socketMode) {
             console.log(err);
             console.log(`Error occurred. See above`);
             await respond({
-                text: "Failed to fetch. Please ensure the player exists and your command is correct. Otherwise, the bot may be experiencing issues.",
+                text: messages.errors.playerFetchFailed,
             });
         }
     });
@@ -118,7 +122,7 @@ async function startSlackBot(token, apptoken, socketMode) {
             const port = args[2]; // optional argument if the server is hosted on a non-standard port.
 
             if (!edition || !host) {
-                return respond({ text: "Usage: /craftie-status (java|bedrock) <host> [port]" });
+                return respond({ text: messages.slack.remindUsage });
             }
 
             // get status and return if failed
@@ -162,7 +166,7 @@ async function startSlackBot(token, apptoken, socketMode) {
         } catch (err) {
             console.log(err);
             await respond({
-                text: "Failed to fetch. Please ensure the server is online and the host/port are correct. Otherwise, the server may be experiencing issues.",
+                text: messages.errors.serverFetchFailed,
             });
         }
     });

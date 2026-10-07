@@ -9,15 +9,12 @@ const {
     SeparatorSpacingSize,
     SectionBuilder,
     ThumbnailBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    MediaGalleryBuilder,
-    MediaGalleryItemBuilder,
-    ActionRowBuilder,
 } = require("discord.js");
 const { getServerStatus } = require("../core/commands/serverStatus");
 const { getWithRetry } = require("../core/utils/requests");
-const { createPlayerCard } = require("../core/utils/playerImage");
+const { createPlayerCard } = require("../core/commands/playerImage");
+const messages = require("../core/utils/messages");
+const config = require("../core/utils/config");
 
 async function startDiscordBot(token) {
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -74,9 +71,7 @@ async function startDiscordBot(token) {
                         ),
                 )
                 .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true))
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder({ content: "From Craftie, a bot built by <@758275913821192202>" }),
-                );
+                .addTextDisplayComponents(new TextDisplayBuilder({ content: messages.discord.embedFooter }));
             // respond to Discord
             await interaction.reply({
                 components: [container],
@@ -87,9 +82,12 @@ async function startDiscordBot(token) {
         if (interaction.commandName === "player-status") {
             await interaction.reply({ content: "Generating status...", flags: MessageFlags.Ephemeral });
             const uuidOrUsername = interaction.options.getString("identifier");
-            const playerData = await getWithRetry(`https://playerdb.co/api/player/minecraft/${uuidOrUsername}`, {
-                validateStatus: status => status >= 200 && status < 500,
-            });
+            const playerData = await getWithRetry(
+                config.apiUrls.playerData.replace("${uuidOrUsername}", uuidOrUsername),
+                {
+                    validateStatus: status => status >= 200 && status < 500,
+                },
+            );
             console.log(playerData);
             const userExists = playerData.data.success;
             if (!userExists) {
@@ -102,7 +100,6 @@ async function startDiscordBot(token) {
             console.log("UUID:", uuid);
             const username = playerData.data.data.player.username;
             console.log("Username:", username);
-            let errorsOccurred = false;
             console.log("Starting to generate status message.");
             await createPlayerCard(uuid, username);
             await interaction.editReply({
