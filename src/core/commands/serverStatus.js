@@ -1,11 +1,12 @@
 const mcstatus = require("node-mcstatus");
+const config = require("../utils/config");
 
 async function getServerStatus(edition, host, port) {
     let response = null;
     let versionName = "Unavailable";
 
     if (port == null) {
-        port = 25565;
+        port = edition == "java" ? config.defaults.javaDefaultPort : config.defaults.bedrockDefaultPort;
     }
 
     switch (edition) {
@@ -49,7 +50,7 @@ async function getServerStatus(edition, host, port) {
     const imageUrl =
         edition == "java"
             ? `https://api.mcstatus.io/v2/icon/${response.host}:${response.srv_record?.port ? response.srv_record?.port : response.port}`
-            : "https://minecraft.wiki/images/Unknown_server.png";
+            : config.defaults.defaultServerIcon;
     console.log(imageUrl);
 
     return {
