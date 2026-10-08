@@ -101,7 +101,8 @@ async function startDiscordBot(token) {
             const username = playerData.data.data.player.username;
             console.log("Username:", username);
             console.log("Starting to generate status message.");
-            await createPlayerCard(uuid, username);
+            const { buffer, errorsOccurred } = await createPlayerCard(uuid, username);
+
             await interaction.editReply({
                 content: "Status generated: ",
                 files: [
@@ -111,6 +112,11 @@ async function startDiscordBot(token) {
                     },
                 ],
             });
+            if (errorsOccurred) {
+                await interaction.editReply({
+                    content: "Status generated, errors may have occured:",
+                });
+            }
         }
         if (interaction.commandName === "help") {
             await interaction.reply(

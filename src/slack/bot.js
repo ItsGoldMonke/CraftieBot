@@ -74,10 +74,9 @@ async function startSlackBot(token, apptoken, socketMode) {
             console.log("UUID:", uuid);
             const username = playerData.data.data.player.username;
             console.log("Name:", username);
-            let errorsOccurred = false;
 
             console.log("Starting to generate status image...");
-            await createPlayerCard(uuid, username);
+            const { buffer, errorsOccurred } = await createPlayerCard(uuid, username);
 
             await client.chat.update({
                 channel: command.channel_id,

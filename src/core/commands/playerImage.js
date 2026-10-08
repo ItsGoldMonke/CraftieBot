@@ -63,7 +63,7 @@ async function createPlayerCard(uuid, username) {
         errorsOccurred = true;
     }
     console.log("Created Buffer");
-    return ((buffer = canvas.toBuffer("image/png")), errorsOccurred);
+    return { buffer: canvas.toBuffer("image/png"), errorsOccurred };
 }
 
 module.exports = {
