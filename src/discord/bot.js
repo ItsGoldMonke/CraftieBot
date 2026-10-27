@@ -31,6 +31,7 @@ async function startDiscordBot(token) {
         }
 
         if (interaction.commandName === "status") {
+            await interaction.deferReply();
             const edition = interaction.options.getString("edition");
             const host = interaction.options.getString("host");
             const port = interaction.options.getInteger("port");
