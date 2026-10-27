@@ -38,7 +38,7 @@ async function startDiscordBot(token) {
 
             const status = await getServerStatus(edition, host, port);
             if (status.failed == true) {
-                return await interaction.reply(`Failed: ${status.failReason}`);
+                return await interaction.editReply(`Failed: ${status.failReason}`);
             }
 
             const versionName = status.version;
@@ -74,7 +74,7 @@ async function startDiscordBot(token) {
                 .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true))
                 .addTextDisplayComponents(new TextDisplayBuilder({ content: messages.discord.embedFooter }));
             // respond to Discord
-            await interaction.reply({
+            await interaction.editReply({
                 components: [container],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { parse: [] },
