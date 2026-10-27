@@ -49,7 +49,12 @@ async function getServerStatus(edition, host, port) {
 
     const imageUrl =
         edition == "java"
-            ? `https://api.mcstatus.io/v2/icon/${response.host}:${response.srv_record?.port ? response.srv_record?.port : response.port}`
+            ? config.apiUrls.serverIcon
+                  .replace("${response.host}", response.host ?? host)
+                  .replace(
+                      "${response.srv_record?.port ? response.srv_record?.port : response.port}",
+                      response.srv_record?.port ? response.srv_record?.port : response.port,
+                  )
             : config.defaults.defaultServerIcon;
     console.log(imageUrl);
 
